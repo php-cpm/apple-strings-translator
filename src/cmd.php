@@ -4,7 +4,7 @@ define("URL", "http://api.fanyi.baidu.com/api/trans/vip/translate");
 define("APP_ID", getenv('BAIDU_APP_ID')); //替换为您的APPID
 define("SEC_KEY", getenv('BAIDU_SEC_KEY'));//替换为您的密钥
 
-$opts = getopt('f:o:s:d:h::u::v::', array());
+$opts = getopt('f:o:s:d:h::u::v::p::', array());
 
 if (empty($opts) || isset($opts['h'])) {
 
@@ -18,7 +18,8 @@ usage:
   -f : from po file path
   -o : save to po file path
   -s : from lang default: zh
-  -d : translate lang default: en 
+  -d : translate lang default: en , avilable jp,kor,cht,zh_hk,zh_tw
+  -p : install python script to /tmp ,this is for translate zh_cn to zh_hk,zh_tw
   -v : verbose mode 
   
 setup env like below:
@@ -29,8 +30,8 @@ EOT;
 }
 require 'vendor/autoload.php';
 
-if(!APP_ID || !SEC_KEY) {
-    exit( "you should setup BAIDU_APP_ID and BAIDU_SEC_KEY in system env \n");
+if (! APP_ID || ! SEC_KEY) {
+    exit("you should setup BAIDU_APP_ID and BAIDU_SEC_KEY in system env \n");
 }
 $debug = isset($opts['v']) ? true : false;
 if ($debug) {
@@ -42,7 +43,40 @@ $from_file = $opts['f'] ?? 'zh.po';
 $from_file = realpath($from_file);
 $save_file = $opts['o'] ?? 'en.po';
 $is_update = isset($opts['u']) ? true : false;
+$install_py = isset($opts['p']) ? true : false;
 
+$hkpy = '/tmp/zh_hk.py';
+$twpy = '/tmp/zh_tw.py';
+
+function install_py()
+{
+    global $hkpy,$twpy;
+    $hktext = <<<'EOD'
+import opencc
+import sys
+xg = 's2hk.json'
+line = sys.argv[1]
+
+converter = opencc.OpenCC(xg)
+print(converter.convert(line))
+EOD;
+    $twtext = <<<'EOD'
+import opencc
+import sys
+tw = 's2twp.json'
+line = sys.argv[1]
+
+converter = opencc.OpenCC(tw)
+print(converter.convert(line))
+EOD;
+    file_put_contents($hkpy, $hktext);
+    file_put_contents($twpy, $twtext);
+    echo exec('pip3 install opencc');
+}
+
+if($install_py) {
+    install_py();exit("\r\n install opencc done");
+}
 if (! file_exists($from_file)) {
     exit("no file exists : " . $from_file);
 }
@@ -74,6 +108,14 @@ foreach ($checkList as $entry) {
     if ($is_update && ! empty($now)) {
         continue;
     }
+    if ($from_lang == 'zh' && in_array($to_lang, ["zh_hk", "zh_tw"])) {
+        $result = translate_local($from, $from_lang, $to_lang);
+        if (! empty($result)) {
+            $entry->setMsgStr($result);
+        }
+        continue;
+    }
+
     $to = translate($from, $from_lang, $to_lang);
     $result = $to['trans_result'][0]['dst'] ?? '';
     if (isset($to['error_code']) && $to['error_code'] == 54003) {
@@ -108,6 +150,26 @@ if ($debug) {
     echo 'file save finished!' . "\n";
 }
 
+function translate_local($query, $from, $to)
+{
+    global $hkpy,$twpy;
+    if(!file_exists($hkpy)) {
+        install_py();
+    }
+    if ($from != 'zh') {
+        die("只有中文能转繁体");
+    }
+    if (! in_array($to, ["zh_hk", "zh_tw"])) {
+        die("只有中文能转繁体");
+    }
+    if ($to == "zh_hk") {
+        $py = $hkpy;
+    }
+    if ($to == "zh_tw") {
+        $py = $twpy;
+    }
+    return exec('python3 ' . $py . " " . $query) ?: '';
+}
 
 //翻译入口
 function translate($query, $from, $to)

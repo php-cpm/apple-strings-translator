@@ -13,6 +13,7 @@ xgettext -D ./ --add-comments \
 -o messages.pot
 
 cd pwd
-php point.phar -u -v -s zh -d jp -f $tdir/locale/ja/LC_MESSAGES/$pname-ja.po -o $tdir/locale/ja/LC_MESSAGES/$pname-ja.po
-php point.phar -u -v -s zh -d en -f $tdir/locale/en/LC_MESSAGES/$pname-en.po -o $tdir/locale/en/LC_MESSAGES/$pname-en.po
-php point.phar -u -v -s zh -d kor -f $tdir/locale/ko/LC_MESSAGES/$pname-ko.po -o $tdir/locale/ko/LC_MESSAGES/$pname-ko.po
+for i in 'en ja ko'
+do
+    php point.phar -u -v -s zh -d jp -f $tdir/locale/ja/LC_MESSAGES/$pname-ja.po -o $tdir/locale/ja/LC_MESSAGES/$pname-ja.po
+done

@@ -37,6 +37,8 @@ some at below
 | fra | Franch |
 | spa | Spanish |
 | cht | Traditional Chinese |
+| zh_tw | Traditional Chinese in TaiWan |
+| zh_hk | Traditional Chinese in HongKong |
 
 
 ## Command
