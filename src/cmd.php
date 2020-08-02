@@ -4,12 +4,12 @@ define("URL", "http://api.fanyi.baidu.com/api/trans/vip/translate");
 define("APP_ID", getenv('BAIDU_APP_ID')); //替换为您的APPID
 define("SEC_KEY", getenv('BAIDU_SEC_KEY'));//替换为您的密钥
 
-$opts = getopt('f:o:s:d:h::u::v::p::', array());
+$opts = getopt('f:o:s:d:h::u::v::p::', []);
 
 if (empty($opts) || isset($opts['h'])) {
 
     echo <<<EOT
-poinit 1.0 - a tool to quick translate wordpress po files writen by php.
+poinit 2.0 - a tool to quick translate wordpress po files writen by php. use new lib [Gettext](https://github.com/php-gettext/Gettext)
 
 https://api.fanyi.baidu.com/doc/21
 
@@ -37,6 +37,7 @@ $debug = isset($opts['v']) ? true : false;
 if ($debug) {
     print_r($opts);
 }
+//$scan_path = $opts['a'] ?? '';
 $from_lang = $opts['s'] ?? 'zh';
 $to_lang = $opts['d'] ?? 'en';
 $from_file = $opts['f'] ?? 'zh.po';
@@ -84,8 +85,6 @@ if (! file_exists($from_file)) {
 if (file_exists($save_file)) {
     echo "warning ! saving to " . $save_file . "\n";
 }
-$saveHandler = new \Sepia\PoParser\SourceHandler\FileSystem($save_file);
-$compiler = new \Sepia\PoParser\PoCompiler();
 
 echo "traslation start...\n";
 echo "source from $from_file\n";
@@ -97,29 +96,31 @@ $to_lang_map = [
 ];
 if(isset($to_lang_map[$to_lang]))
     $to_lang = $to_lang_map[$to_lang];
-// Parse a po file
-$fileHandler = new Sepia\PoParser\SourceHandler\FileSystem($from_file);
 
-$poParser = new Sepia\PoParser\Parser($fileHandler);
-$catalog = $poParser->parse();
-$checkList = $catalog->getEntries();
+//import from a .po file:
+$loader = new \Gettext\Loader\PoLoader();
+$translations = $loader->loadFile($from_file);
+$checkList = $translations->getTranslations();
 $count = count($checkList);
 $c = 0;
+/**
+ * @var $entry \Gettext\Translation
+ */
 foreach ($checkList as $entry) {
     $c++;
     if ($debug) {
         echo $c . '/' . $count . "\n";
     }
     $start = microtime(true);
-    $from = $entry->getMsgId();
-    $now = $entry->getMsgStr();
+    $from = $entry->getOriginal();
+    $now = $entry->getTranslation();
     if ($is_update && ! empty($now)) {
         continue;
     }
     if ($from_lang == 'zh' && in_array($to_lang, ["zh_hk", "zh_tw"])) {
         $result = translate_local($from, $from_lang, $to_lang);
         if (! empty($result)) {
-            $entry->setMsgStr($result);
+            $entry->translate($result);
         }
         continue;
     }
@@ -132,7 +133,7 @@ foreach ($checkList as $entry) {
         $result = $to['trans_result'][0]['dst'] ?? '';
     }
     if (! empty($result)) {
-        $entry->setMsgStr($result);
+        $entry->translate($result);
 
     } else {
 
@@ -155,7 +156,14 @@ if ($debug) {
 if ($debug) {
     echo 'file save start...' . "\n";
 }
-$saveHandler->save($compiler->compile($catalog));
+
+//export to a .po file:
+$generator = new \Gettext\Generator\PoGenerator();
+$generator->generateFile($translations, $save_file);
+//export to a .mo file:
+$generator = new \Gettext\Generator\MoGenerator();
+$generator->generateFile($translations, str_replace('.po','.mo', $save_file));
+
 if ($debug) {
     echo 'file save finished!' . "\n";
 }
