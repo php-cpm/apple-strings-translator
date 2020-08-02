@@ -180,7 +180,7 @@ function translate_local($query, $from, $to)
     }
     $query = "'" . str_replace('\'', '\\\'', $query) . "'";
     $cmd = 'python3 ' . $py . " " . $query;
-    $result = shell_exec($cmd) ?: '';
+    $result = rtrim(shell_exec($cmd)) ?: '';
     echo $cmd . " " . $result . "\r\n";
     return $result;
 }
