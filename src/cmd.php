@@ -89,7 +89,14 @@ $compiler = new \Sepia\PoParser\PoCompiler();
 
 echo "traslation start...\n";
 echo "source from $from_file\n";
+$to_lang = strtolower($to_lang);
 echo $from_lang . '=>' . $to_lang . " " . "\n";
+$to_lang_map = [
+    'ja' => 'jp',
+    'ko' => 'kor',
+];
+if(isset($to_lang_map[$to_lang]))
+    $to_lang = $to_lang_map[$to_lang];
 // Parse a po file
 $fileHandler = new Sepia\PoParser\SourceHandler\FileSystem($from_file);
 
