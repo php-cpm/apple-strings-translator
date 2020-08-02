@@ -50,7 +50,7 @@ $twpy = '/tmp/zh_tw.py';
 
 function install_py()
 {
-    global $hkpy,$twpy;
+    global $hkpy, $twpy;
     $hktext = <<<'EOD'
 import opencc
 import sys
@@ -74,8 +74,9 @@ EOD;
     echo exec('pip3 install opencc');
 }
 
-if($install_py) {
-    install_py();exit("\r\n install opencc done");
+if ($install_py) {
+    install_py();
+    exit("\r\n install opencc done");
 }
 if (! file_exists($from_file)) {
     exit("no file exists : " . $from_file);
@@ -152,8 +153,8 @@ if ($debug) {
 
 function translate_local($query, $from, $to)
 {
-    global $hkpy,$twpy;
-    if(!file_exists($hkpy)) {
+    global $hkpy, $twpy;
+    if (! file_exists($hkpy)) {
         install_py();
     }
     if ($from != 'zh') {
@@ -168,6 +169,7 @@ function translate_local($query, $from, $to)
     if ($to == "zh_tw") {
         $py = $twpy;
     }
+    $query = "'" . str_replace('\'', '\\\'', $query) . "'";
     return exec('python3 ' . $py . " " . $query) ?: '';
 }
 
