@@ -144,7 +144,9 @@ foreach ($checkList as $entry) {
     if ($debug) {
         echo $time . ' ' . $from . ' ' . $result . "\r\n";
     }
-    usleep(1000 * 1000 * ((1.1 - $time) > 0 ? (1.1 - $time) : ($time - 1.1)));
+    $wait = 1000 * 1000 * ((1.1 - $time) > 0 ? (1.1 - $time) : ($time - 1.1));
+    echo " wait $wait ";
+    usleep($wait);
 }
 
 if ($debug) {
@@ -177,7 +179,10 @@ function translate_local($query, $from, $to)
         $py = $twpy;
     }
     $query = "'" . str_replace('\'', '\\\'', $query) . "'";
-    return exec('python3 ' . $py . " " . $query) ?: '';
+    $cmd = 'python3 ' . $py . " " . $query;
+    $result = shell_exec($cmd) ?: '';
+    echo $cmd . " " . $result . "\r\n";
+    return $result;
 }
 
 //翻译入口
