@@ -1,0 +1,48 @@
+/*
+  Localizable.strings
+  Turtle
+
+  Created by 杨新磊 on 2019/3/28.
+  Copyright © 2019 duihao. All rights reserved.
+*/
+//"我的相册" = "My Album";
+//"登录" = "Login";
+//"注册" = "Sign Up";
+//"自我介绍" = "About me";
+//"你的兴趣、爱好、和一些趣事。性格内向还是外向？喜欢热闹还是安静？总是开开心心还是会常常发愁？"  =  "Your interests, hobbies, and some interesting things. Introverted or extroverted? Do you like to be hilarious or quiet? Always happy or often worried？";
+//"加载中" = "Loading";
+//"发送失败" = "Sending failed";
+//"保存成功" = "Saved successfully";
+//"请求失败" = "Request failed";
+//"意见反馈" = "Feedback";
+
+"版本更新" = "Version update";
+
+"处理时间" = "Time";
+"建议略微抬头" = "Look up a little";
+"建议略微低头" = "Bow your head slightly";
+"建议略微向右转头" = "Turn your head to the right";
+"建议略微向左转头" = "Turn your head to the left";
+"光线再亮些" = "The light is brighter";
+"把脸移入框内" = "Move your face into the frame";
+"请保持不动" = "Keep still";
+"左眼有遮挡" = "Left eye occlusion";
+"右眼有遮挡" = "Right eye occlusion";
+"鼻子有遮挡" = "The nose is blocked";
+"左脸颊有遮挡" = "Left cheek is covered";
+"右脸颊有遮挡" = "Right cheek is covered";
+"下颚有遮挡" = "Jaw is covered";
+"手机拿远一点" = "Keep your cell phone away";
+"手机拿近一点" = "Hold the cell phone closer";
+"把脸移入框内" = "Move your face into the frame";
+"眨眨眼" = "Blink";
+"张张嘴" = "Open your mouth";
+"向右缓慢转头" = "Turn your head to the right";
+"向左缓慢转头" = "Turn your head to the left";
+"缓慢抬头" = "Raise your head";
+"缓慢低头" = "Bow your head slowly";
+"摇摇头" = "Shake the head";
+"非常好" = "Good";
+"验证失败" = "Fail";
+"立即验证" = "Sumbit";
+"相机权限未开启，请在设置中找到软件开启相机" = "Please find the software in the settings to turn on the camera";

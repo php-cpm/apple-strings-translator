@@ -15,8 +15,8 @@ https://api.fanyi.baidu.com/doc/21
 
 usage:
   -u : if determined will only translate empty item
-  -f : from po file path
-  -o : save to po file path
+  -f : from .strings file path
+  -o : save to .strings file path
   -s : from lang default: zh
   -d : translate lang default: en , avilable jp,kor,cht,zh_hk,zh_tw
   -p : install python script to /tmp ,this is for translate zh_cn to zh_hk,zh_tw
@@ -28,7 +28,6 @@ export BAIDU_SEC_KEY=xxx
 EOT;
     exit;
 }
-require 'vendor/autoload.php';
 
 if (! APP_ID || ! SEC_KEY) {
     exit("you should setup BAIDU_APP_ID and BAIDU_SEC_KEY in system env \n");
@@ -94,33 +93,48 @@ $to_lang_map = [
     'ja' => 'jp',
     'ko' => 'kor',
 ];
-if(isset($to_lang_map[$to_lang]))
+if (isset($to_lang_map[$to_lang])) {
     $to_lang = $to_lang_map[$to_lang];
+}
 
+$to_list = [];
 //import from a .po file:
-$loader = new \Gettext\Loader\PoLoader();
-$translations = $loader->loadFile($from_file);
-$checkList = $translations->getTranslations();
+$checkList = file($from_file);
 $count = count($checkList);
-$c = 0;
 /**
  * @var $entry \Gettext\Translation
  */
-foreach ($checkList as $entry) {
-    $c++;
+foreach ($checkList as $c => $entry) {
     if ($debug) {
         echo $c . '/' . $count . "\n";
     }
+
+    if (strpos($entry, '=') <= 0) {
+        continue;
+    }
+    if (strpos($entry, '//') === 0) {
+        continue;
+    }
+
+    $original = substr($entry, 0, strpos($entry, '='));
+    $now = substr($entry, strpos($entry, '=')+1, -1);
+
+    $pattern = '/(?<=").*?(?=")/';
+
+    preg_match($pattern, $original, $result);
+    $from = $result[0];
+
+    preg_match($pattern, $now, $result);
+    $now = $result[0];
+
     $start = microtime(true);
-    $from = $entry->getOriginal();
-    $now = $entry->getTranslation();
     if ($is_update && ! empty($now)) {
         continue;
     }
     if ($from_lang == 'zh' && in_array($to_lang, ["zh_hk", "zh_tw"])) {
         $result = translate_local($from, $from_lang, $to_lang);
         if (! empty($result)) {
-            $entry->translate($result);
+            $checkList[$c] = str_replace($now, $result, $checkList[$c]);
         }
         continue;
     }
@@ -133,7 +147,7 @@ foreach ($checkList as $entry) {
         $result = $to['trans_result'][0]['dst'] ?? '';
     }
     if (! empty($result)) {
-        $entry->translate($result);
+        $checkList[$c] = str_replace($now, $result, $checkList[$c]);
 
     } else {
 
@@ -157,12 +171,10 @@ if ($debug) {
     echo 'file save start...' . "\n";
 }
 
+file_put_contents($save_file, $checkList);
 //export to a .po file:
-$generator = new \Gettext\Generator\PoGenerator();
-$generator->generateFile($translations, $save_file);
-//export to a .mo file:
-$generator = new \Gettext\Generator\MoGenerator();
-$generator->generateFile($translations, str_replace('.po','.mo', $save_file));
+//$generator = new \Gettext\Generator\PoGenerator();
+//$generator->generateFile($translations, $save_file);
 
 if ($debug) {
     echo 'file save finished!' . "\n";

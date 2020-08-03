@@ -1,6 +1,0 @@
-{
-    "require": {
-        "gettext/gettext": "^5.5",
-        "gettext/php-scanner": "^1.2"
-    }
-}
