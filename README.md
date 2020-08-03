@@ -1,4 +1,4 @@
-# POINT(PO INit Translation)
+# apple strings traslator - asting
 
 a tool to quick translate gettext po files writen by php.
 
@@ -44,7 +44,7 @@ some at below
 ## Command
 
 ```
-point -u -s zh -d en -f en.po -o en2.po 
+asting -u -s zh -d en -f en.po -o en2.po 
 ```
 
 ## Development
