@@ -1,6 +1,6 @@
 <?php
 define("CURL_TIMEOUT", 10);
-define("URL", "http://api.fanyi.baidu.com/api/trans/vip/translate");
+define("URL", "https://fanyi-api.baidu.com/api/trans/vip/translate");
 define("APP_ID", getenv('BAIDU_APP_ID')); //替换为您的APPID
 define("SEC_KEY", getenv('BAIDU_SEC_KEY'));//替换为您的密钥
 
@@ -134,7 +134,7 @@ foreach ($checkList as $c => $entry) {
     if ($from_lang == 'zh' && in_array($to_lang, ["zh_hk", "zh_tw"])) {
         $result = translate_local($from, $from_lang, $to_lang);
         if (! empty($result)) {
-            $checkList[$c] = str_replace($now, $result, $checkList[$c]);
+            $checkList[$c] = "\"$from\" = \"$result\";\r\n";
         }
         continue;
     }
