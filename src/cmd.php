@@ -128,9 +128,11 @@ foreach ($checkList as $c => $entry) {
     $now = $result[0];
 
     $start = microtime(true);
-    if ($is_update && ! empty($now)) {
+
+    if ($is_update && $now != $from) {
         continue;
     }
+
     if ($from_lang == 'zh' && in_array($to_lang, ["zh_hk", "zh_tw"])) {
         $result = translate_local($from, $from_lang, $to_lang);
         if (! empty($result)) {
