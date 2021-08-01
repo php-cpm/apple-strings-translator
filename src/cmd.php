@@ -147,7 +147,7 @@ foreach ($checkList as $c => $entry) {
         $result = $to['trans_result'][0]['dst'] ?? '';
     }
     if (! empty($result)) {
-        $checkList[$c] = str_replace($now, $result, $checkList[$c]);
+        $checkList[$c] = "\"$from\" = \"$result\";\r\n";
 
     } else {
 
