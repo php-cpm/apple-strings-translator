@@ -29,7 +29,7 @@ EOT;
     exit;
 }
 
-if (! APP_ID || ! SEC_KEY) {
+if (!APP_ID || !SEC_KEY) {
     exit("you should setup BAIDU_APP_ID and BAIDU_SEC_KEY in system env \n");
 }
 $debug = isset($opts['v']) ? true : false;
@@ -78,7 +78,7 @@ if ($install_py) {
     install_py();
     exit("\r\n install opencc done");
 }
-if (! file_exists($from_file)) {
+if (!file_exists($from_file)) {
     exit("no file exists : " . $from_file);
 }
 if (file_exists($save_file)) {
@@ -100,9 +100,42 @@ if (isset($to_lang_map[$to_lang])) {
 $to_list = [];
 //import from a .po file:
 $checkList = file($from_file);
+$newList = getKVByList($checkList);
 $count = count($checkList);
+if (file_exists($save_file)) {
+    $dcheckList = file($save_file);
+    $dcount = count($dcheckList);
+    $transList = getKVByList($dcheckList);
+}
+echo count($newList) . '/' . count($transList);
+function getKVByList($list)
+{
+    $return = [];
+    foreach ($list as $c => $entry) {
+        if (strpos($entry, '=') <= 0) {
+            continue;
+        }
+        if (strpos($entry, '//') === 0) {
+            continue;
+        }
+
+        $original = substr($entry, 0, strpos($entry, '='));
+        $now = substr($entry, strpos($entry, '=') + 1, -1);
+
+        $pattern = '/(?<=").*?(?=")/';
+
+        preg_match($pattern, $original, $result);
+        $from = $result[0];
+
+        preg_match($pattern, $now, $result);
+        $now = $result[0];
+        $return[$from] = $now;
+    }
+    return $return;
+}
+
 /**
- * @var $entry \Gettext\Translation
+ * @var $entry string
  */
 foreach ($checkList as $c => $entry) {
     if ($debug) {
@@ -117,7 +150,7 @@ foreach ($checkList as $c => $entry) {
     }
 
     $original = substr($entry, 0, strpos($entry, '='));
-    $now = substr($entry, strpos($entry, '=')+1, -1);
+    $now = substr($entry, strpos($entry, '=') + 1, -1);
 
     $pattern = '/(?<=").*?(?=")/';
 
@@ -129,13 +162,19 @@ foreach ($checkList as $c => $entry) {
 
     $start = microtime(true);
 
-    if ($is_update && $now != $from) {
+    if ($is_update && isset($transList[$from])) {
+        $checkList[$c] = "\"$from\" = \"$transList[$from]\";\r\n";
+        continue;
+    }
+
+    //特殊标志保持不变
+    if ($is_update && strpos($from, '-' >= 0) && $from == $now) {
         continue;
     }
 
     if ($from_lang == 'zh' && in_array($to_lang, ["zh_hk", "zh_tw"])) {
         $result = translate_local($from, $from_lang, $to_lang);
-        if (! empty($result)) {
+        if (!empty($result)) {
             $checkList[$c] = "\"$from\" = \"$result\";\r\n";
         }
         continue;
@@ -148,7 +187,7 @@ foreach ($checkList as $c => $entry) {
         $to = translate($from, $from_lang, $to_lang);
         $result = $to['trans_result'][0]['dst'] ?? '';
     }
-    if (! empty($result)) {
+    if (!empty($result)) {
         $checkList[$c] = "\"$from\" = \"$result\";\r\n";
 
     } else {
@@ -185,13 +224,13 @@ if ($debug) {
 function translate_local($query, $from, $to)
 {
     global $hkpy, $twpy;
-    if (! file_exists($hkpy)) {
+    if (!file_exists($hkpy)) {
         install_py();
     }
     if ($from != 'zh') {
         die("只有中文能转繁体");
     }
-    if (! in_array($to, ["zh_hk", "zh_tw"])) {
+    if (!in_array($to, ["zh_hk", "zh_tw"])) {
         die("只有中文能转繁体");
     }
     if ($to == "zh_hk") {
@@ -270,7 +309,7 @@ function callOnce($url, $args = null, $method = "post", $withCookie = false, $ti
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    if (! empty($headers)) {
+    if (!empty($headers)) {
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     }
     if ($withCookie) {
