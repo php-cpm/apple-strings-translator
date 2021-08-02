@@ -168,7 +168,9 @@ foreach ($checkList as $c => $entry) {
     }
 
     //特殊标志保持不变
-    if ($is_update && strpos($from, '-' >= 0) && $from == $now) {
+    if (strpos($from, '-' ) >= 0 && $from == $now) {
+        var_dump($from);
+        var_dump(strpos($from, '-' ));
         continue;
     }
 
