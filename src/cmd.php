@@ -107,7 +107,7 @@ if (file_exists($save_file)) {
     $dcount = count($dcheckList);
     $transList = getKVByList($dcheckList);
 }
-echo count($newList) . '/' . count($transList);
+echo '对比:' . count($newList) . '/' . count($transList);
 function getKVByList($list)
 {
     $return = [];
@@ -162,15 +162,18 @@ foreach ($checkList as $c => $entry) {
 
     $start = microtime(true);
 
-    if ($is_update && isset($transList[$from])) {
-        $checkList[$c] = "\"$from\" = \"$transList[$from]\";\r\n";
-        continue;
+    if($is_update) {
+        if (isset($transList[$from]) && $transList[$from] != '') {
+            echo "已翻译";var_dump($transList[$from]);
+            $checkList[$c] = "\"$from\" = \"$transList[$from]\";\r\n";
+            continue;
+        }
     }
 
     //特殊标志保持不变
-    if (strpos($from, '-' ) >= 0 && $from == $now) {
-        var_dump($from);
-        var_dump(strpos($from, '-' ));
+    if (strpos($from, '_' ) >= 0 && $from == $now) {
+        echo '排除';var_dump($from);
+        var_dump(strpos($from, '_' ));
         continue;
     }
 
