@@ -102,6 +102,7 @@ $to_list = [];
 $checkList = file($from_file);
 $newList = getKVByList($checkList);
 $count = count($checkList);
+$transList = [];
 if (file_exists($save_file)) {
     $dcheckList = file($save_file);
     $dcount = count($dcheckList);
@@ -168,14 +169,12 @@ foreach ($checkList as $c => $entry) {
             $checkList[$c] = "\"$from\" = \"$transList[$from]\";\r\n";
             continue;
         }
+        if($from == $now && strpos($from, '_' ) > 0) {
+            var_dump($now, $transList[$from]);
+            exit;
+        }
     }
 
-    //特殊标志保持不变
-    if (strpos($from, '_' ) >= 0 && $from == $now) {
-        echo '排除';var_dump($from);
-        var_dump(strpos($from, '_' ));
-        continue;
-    }
 
     if ($from_lang == 'zh' && in_array($to_lang, ["zh_hk", "zh_tw"])) {
         $result = translate_local($from, $from_lang, $to_lang);
